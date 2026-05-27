@@ -43,11 +43,13 @@ public class ResumeAnalyzerService {
 
     private String callGroqApi(String resumeText) {
         String prompt = "You are an expert ATS (Applicant Tracking System) and senior tech recruiter. " +
-                "Analyze the following resume text. Evaluate it for a tech role. " +
+                "Analyze the following resume text and evaluate it for a tech role. " +
+                "For the 'enhancementTips' array, you must find at least two actual, weak or unquantified bullet points from the uploaded resume text, and write custom, highly personalized 'Before & After' rewrites for them to optimize their ATS visibility. " +
+                "Format the 'tip' field to clearly show 'Before: [original weak bullet]' and 'After: [optimized bullet with power verbs and simulated metrics]' on new lines. " +
                 "Respond ONLY with a valid JSON object matching exactly this schema: " +
                 "{\"score\": 85, \"keywords\": [\"Java\", \"React\"], \"missing\": [\"Docker\"], \"suggestions\": [\"Add quantifiable metrics\"], " +
-                "\"enhancementTips\": [{\"category\": \"Formatting\", \"tip\": \"Use a clean, single-column template to ensure ATS parsers can read your text correctly.\"}, {\"category\": \"Impact\", \"tip\": \"Begin bullet points with strong action verbs like 'Architected' or 'Streamlined'.\"}, {\"category\": \"Metrics\", \"tip\": \"Quantify results (e.g., 'reduced load time by 30%') to demonstrate value.\"}]}. " +
-                "Provide at least 3 custom, actionable enhancement tips in the enhancementTips array. " +
+                "\"enhancementTips\": [{\"category\": \"Formatting\", \"tip\": \"Use a clean, single-column template to ensure ATS parsers can read your text correctly.\"}, {\"category\": \"Impact\", \"tip\": \"Before: Developed REST APIs to expose data.\\nAfter: Engineered high-throughput REST APIs to expose real-time streams, reducing latency by 35%.\"}, {\"category\": \"Metrics\", \"tip\": \"Before: Optimized database interactions.\\nAfter: Streamlined MySQL database execution plans, reducing query retrieval times by 30%.\"} ]}. " +
+                "Provide at least 3 custom, highly personalized enhancement tips in the enhancementTips array. " +
                 "Do not include markdown blocks, backticks, or any other text outside the JSON.\n\nResume Text:\n" + resumeText;
 
         // Escape JSON safely

@@ -183,7 +183,7 @@ export default function ResumeAnalyzer() {
                         </span>
                         {styles.icon}
                       </div>
-                      <p className="text-slate-300 text-sm leading-relaxed z-10">{tipObj.tip}</p>
+                      <p className="text-slate-300 text-sm leading-relaxed z-10 whitespace-pre-line">{tipObj.tip}</p>
                     </motion.div>
                   );
                 })}
