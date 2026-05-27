@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UploadCloud, CheckCircle, AlertCircle, FileText, Sparkles, BookOpen, Zap, TrendingUp } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 export default function ResumeAnalyzer() {
   const [file, setFile] = useState(null);
@@ -23,7 +24,7 @@ export default function ResumeAnalyzer() {
     formData.append('file', file);
     
     try {
-      const response = await fetch('http://localhost:8080/api/resume/analyze', {
+      const response = await fetch(`${API_BASE_URL}/api/resume/analyze`, {
         method: 'POST',
         body: formData,
       });

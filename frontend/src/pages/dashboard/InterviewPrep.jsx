@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, HelpCircle, Target, ChevronDown, ChevronUp, Lightbulb, Send, Compass, ExternalLink } from 'lucide-react';
 import { coursesData } from '../../data/courses';
+import { API_BASE_URL } from '../../config';
 
 export default function InterviewPrep() {
   const [role, setRole] = useState('Java Full Stack Developer');
@@ -25,7 +26,7 @@ export default function InterviewPrep() {
     setQuestions([]);
     
     try {
-      const response = await fetch(`http://localhost:8080/api/interview/generate?role=${encodeURIComponent(role)}&difficulty=${encodeURIComponent(difficulty)}`);
+      const response = await fetch(`${API_BASE_URL}/api/interview/generate?role=${encodeURIComponent(role)}&difficulty=${encodeURIComponent(difficulty)}`);
       if (!response.ok) throw new Error('Failed to fetch questions');
       
       const data = await response.json();
@@ -45,7 +46,7 @@ export default function InterviewPrep() {
     
     setAsking(true);
     try {
-      const response = await fetch('http://localhost:8080/api/interview/ask', {
+      const response = await fetch(`${API_BASE_URL}/api/interview/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: customQuestion, role, difficulty })

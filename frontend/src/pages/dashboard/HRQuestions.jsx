@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, ChevronDown, ChevronUp, Lightbulb, Search, Sparkles, Send } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 export default function HRQuestions() {
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -16,7 +17,7 @@ export default function HRQuestions() {
     setAskedQuestion(questionToAsk);
 
     try {
-      const response = await fetch('http://localhost:8080/api/interview/ask-hr', {
+      const response = await fetch(`${API_BASE_URL}/api/interview/ask-hr`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: questionToAsk })

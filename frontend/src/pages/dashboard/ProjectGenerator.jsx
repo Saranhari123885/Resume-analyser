@@ -5,6 +5,7 @@ import {
   Trash2, Layers, Clipboard, Check, Users, Target, Laptop,
   HelpCircle, ChevronUp, ChevronDown
 } from 'lucide-react';
+import { API_BASE_URL } from '../../config';
 
 export default function ProjectGenerator() {
   const [formData, setFormData] = useState({ 
@@ -55,7 +56,7 @@ export default function ProjectGenerator() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/project/generate', {
+      const response = await fetch(`${API_BASE_URL}/api/project/generate`, {
         method: 'POST',
         body: formDataToSend,
       });

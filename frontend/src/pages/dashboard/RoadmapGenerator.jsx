@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Map, BookOpen, Compass, CheckCircle, ExternalLink, ChevronDown, ChevronUp, Milestone } from 'lucide-react';
 import { coursesData } from '../../data/courses';
+import { API_BASE_URL } from '../../config';
 
 export default function RoadmapGenerator() {
   const [domain, setDomain] = useState('Java Full Stack');
@@ -16,7 +17,7 @@ export default function RoadmapGenerator() {
     setExpandedCourseIdx(null);
     
     try {
-      const response = await fetch(`http://localhost:8080/api/roadmap/generate?domain=${encodeURIComponent(domain)}`);
+      const response = await fetch(`${API_BASE_URL}/api/roadmap/generate?domain=${encodeURIComponent(domain)}`);
       if (!response.ok) {
         throw new Error('Backend generation failed');
       }
