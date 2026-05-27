@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, CheckCircle, AlertCircle, FileText, Sparkles, BookOpen, Zap, TrendingUp } from 'lucide-react';
+import { UploadCloud, CheckCircle, AlertCircle, FileText, Sparkles, BookOpen, Zap, TrendingUp, HelpCircle, Lightbulb, AlertTriangle } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 
 export default function ResumeAnalyzer() {
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
+  const [selectedPriority, setSelectedPriority] = useState('all');
 
 
   const handleUpload = async (e) => {
@@ -126,21 +127,251 @@ export default function ResumeAnalyzer() {
           </motion.div>
 
           {result && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-dark p-8 rounded-2xl space-y-6"
-            >
-              <h3 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Improvement Suggestions</h3>
-              <ul className="space-y-4">
-                {result.suggestions.map((s, i) => (
-                  <li key={i} className="flex items-start gap-3 text-slate-300">
-                    <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+            <div className="space-y-6">
+              {result.improvements && result.improvements.length > 0 ? (
+                <>
+                  {/* Potential Score Simulator */}
+                  {(() => {
+                    const totalScoreIncrease = result.improvements.reduce((sum, imp) => sum + (imp.scoreIncrease || 0), 0);
+                    const potentialScore = Math.min(100, result.score + totalScoreIncrease);
+                    const highCount = result.improvements.filter(imp => imp.priority?.toLowerCase().includes('high')).length;
+                    const mediumCount = result.improvements.filter(imp => imp.priority?.toLowerCase().includes('medium')).length;
+                    const optionalCount = result.improvements.filter(imp => imp.priority?.toLowerCase().includes('optional') || imp.priority?.toLowerCase().includes('low')).length;
+                    const allCount = result.improvements.length;
+
+                    const filteredImprovements = result.improvements.filter(imp => {
+                      if (selectedPriority === 'all') return true;
+                      if (selectedPriority === 'high') return imp.priority?.toLowerCase().includes('high');
+                      if (selectedPriority === 'medium') return imp.priority?.toLowerCase().includes('medium');
+                      if (selectedPriority === 'optional') return imp.priority?.toLowerCase().includes('optional') || imp.priority?.toLowerCase().includes('low');
+                      return true;
+                    });
+
+                    return (
+                      <div className="space-y-6">
+                        {/* Simulator Header Card */}
+                        <motion.div 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="glass-dark p-6 rounded-2xl border border-slate-800/80 relative overflow-hidden"
+                        >
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+                          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+                            <div className="space-y-2 text-center md:text-left">
+                              <div className="flex items-center justify-center md:justify-start gap-2 text-primary">
+                                <Sparkles className="w-5 h-5 text-secondary animate-pulse" />
+                                <span className="text-sm font-semibold uppercase tracking-wider">ATS Score Optimizer</span>
+                              </div>
+                              <h3 className="text-2xl font-bold text-white">Resume Action Plan</h3>
+                              <p className="text-slate-400 text-sm max-w-md leading-relaxed">
+                                Implement these personalized improvements tailored directly to your resume to close the gaps and maximize your interview chances.
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-6 bg-slate-950/40 p-4 rounded-xl border border-slate-800/80 shadow-inner">
+                              <div className="text-center">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Current</div>
+                                <div className="text-3xl font-extrabold text-slate-300">{result.score}</div>
+                              </div>
+                              <div className="h-8 w-px bg-slate-800" />
+                              <div className="text-center">
+                                <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">Impact</div>
+                                <div className="text-3xl font-extrabold text-emerald-400">+{totalScoreIncrease}</div>
+                              </div>
+                              <div className="h-8 w-px bg-slate-800" />
+                              <div className="text-center">
+                                <div className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Potential</div>
+                                <div className="text-3xl font-extrabold text-white bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">{potentialScore}</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Beautiful Dual Colored Progress Bar */}
+                          <div className="mt-6 space-y-1.5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-400">
+                              <span>Optimization Progress</span>
+                              <span className="text-emerald-400">{potentialScore}% Potential ATS Rating</span>
+                            </div>
+                            <div className="h-3 w-full bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800/60">
+                              <div className="h-full flex rounded-full overflow-hidden">
+                                <div 
+                                  className="bg-gradient-to-r from-indigo-500 to-primary transition-all duration-1000"
+                                  style={{ width: `${result.score}%` }}
+                                />
+                                {totalScoreIncrease > 0 && (
+                                  <div 
+                                    className="bg-emerald-500 animate-pulse transition-all duration-1000"
+                                    style={{ width: `${Math.min(100 - result.score, totalScoreIncrease)}%` }}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex justify-between text-[10px] text-slate-500 pt-0.5 font-medium">
+                              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Current ({result.score}%)</span>
+                              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Actionable Gaps (+{totalScoreIncrease}%)</span>
+                            </div>
+                          </div>
+                        </motion.div>
+
+                        {/* Filter Tabs */}
+                        <div className="flex flex-wrap items-center gap-2 border-b border-slate-800/80 pb-4">
+                          <button 
+                            onClick={() => setSelectedPriority('all')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all ${
+                              selectedPriority === 'all' 
+                                ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' 
+                                : 'bg-slate-900/40 text-slate-400 border-slate-800/80 hover:border-slate-700 hover:text-slate-300'
+                            }`}
+                          >
+                            All ({allCount})
+                          </button>
+                          <button 
+                            onClick={() => setSelectedPriority('high')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                              selectedPriority === 'high' 
+                                ? 'bg-rose-600 text-white border-rose-600 shadow-lg shadow-rose-600/20' 
+                                : 'bg-slate-900/40 text-slate-400 border-slate-800/80 hover:border-rose-500/30 hover:text-rose-400'
+                            }`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                            High Priority ({highCount})
+                          </button>
+                          <button 
+                            onClick={() => setSelectedPriority('medium')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                              selectedPriority === 'medium' 
+                                ? 'bg-amber-600 text-white border-amber-600 shadow-lg shadow-amber-600/20' 
+                                : 'bg-slate-900/40 text-slate-400 border-slate-800/80 hover:border-amber-500/30 hover:text-amber-400'
+                            }`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Medium Priority ({mediumCount})
+                          </button>
+                          <button 
+                            onClick={() => setSelectedPriority('optional')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
+                              selectedPriority === 'optional' 
+                                ? 'bg-cyan-600 text-white border-cyan-600 shadow-lg shadow-cyan-600/20' 
+                                : 'bg-slate-900/40 text-slate-400 border-slate-800/80 hover:border-cyan-500/30 hover:text-cyan-400'
+                            }`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                            Optional ({optionalCount})
+                          </button>
+                        </div>
+
+                        {/* List of suggestions */}
+                        <div className="space-y-4">
+                          {filteredImprovements.length > 0 ? (
+                            filteredImprovements.map((imp, idx) => {
+                              let priorityColor = 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+                              let priorityBorder = 'border-l-cyan-500';
+                              let priorityText = 'Optional Enhancement';
+                              
+                              if (imp.priority?.toLowerCase().includes('high')) {
+                                priorityColor = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+                                priorityBorder = 'border-l-rose-500';
+                                priorityText = 'High Priority';
+                              } else if (imp.priority?.toLowerCase().includes('medium')) {
+                                priorityColor = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+                                priorityBorder = 'border-l-amber-500';
+                                priorityText = 'Medium Priority';
+                              }
+
+                              return (
+                                <motion.div
+                                  key={idx}
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ delay: idx * 0.05 }}
+                                  whileHover={{ y: -2 }}
+                                  className={`p-6 rounded-xl bg-slate-900/40 border border-slate-800/80 ${priorityBorder} border-l-4 hover:border-slate-700/80 transition-all flex flex-col gap-4 relative overflow-hidden group`}
+                                >
+                                  <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-2xl pointer-events-none group-hover:bg-primary/10 transition-colors" />
+                                  
+                                  {/* Card Header */}
+                                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/50 pb-3 relative z-10">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${priorityColor}`}>
+                                        {priorityText}
+                                      </span>
+                                      <span className="px-2.5 py-0.5 text-[10px] font-semibold rounded-full bg-slate-800 text-slate-300 border border-slate-750">
+                                        {imp.category}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold shadow-sm shadow-emerald-500/5">
+                                      <TrendingUp className="w-3.5 h-3.5" />
+                                      +{imp.scoreIncrease} PTS
+                                    </div>
+                                  </div>
+
+                                  {/* Card Body */}
+                                  <div className="space-y-4 text-sm relative z-10">
+                                    {/* Weakness */}
+                                    <div className="flex items-start gap-3">
+                                      <div className="p-1 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 shrink-0 mt-0.5">
+                                        <AlertTriangle className="w-3.5 h-3.5" />
+                                      </div>
+                                      <div>
+                                        <span className="font-bold text-slate-200 text-xs uppercase tracking-wider block mb-0.5">Weakness / Gap Identified</span>
+                                        <p className="text-slate-400 leading-relaxed">{imp.weakness}</p>
+                                      </div>
+                                    </div>
+
+                                    {/* Suggestion */}
+                                    <div className="flex items-start gap-3">
+                                      <div className="p-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400 shrink-0 mt-0.5">
+                                        <Lightbulb className="w-3.5 h-3.5" />
+                                      </div>
+                                      <div>
+                                        <span className="font-bold text-slate-200 text-xs uppercase tracking-wider block mb-0.5">Actionable Suggestion</span>
+                                        <p className="text-slate-300 leading-relaxed font-medium">{imp.suggestion}</p>
+                                      </div>
+                                    </div>
+
+                                    {/* Explanation */}
+                                    <div className="flex items-start gap-3 border-t border-slate-800/40 pt-3">
+                                      <div className="p-1 rounded bg-sky-500/10 border border-sky-500/20 text-sky-400 shrink-0 mt-0.5">
+                                        <HelpCircle className="w-3.5 h-3.5" />
+                                      </div>
+                                      <div>
+                                        <span className="font-bold text-slate-200 text-xs uppercase tracking-wider block mb-0.5">ATS Score Impact</span>
+                                        <p className="text-slate-400 leading-relaxed">{imp.explanation}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              );
+                            })
+                          ) : (
+                            <div className="p-10 text-center rounded-xl bg-slate-900/20 border border-slate-800/80 text-slate-500">
+                              No recommendations in this priority level.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
+              ) : (
+                /* Fallback to simple list if improvements array is empty or old structure */
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass-dark p-8 rounded-2xl space-y-6"
+                >
+                  <h3 className="text-xl font-bold text-white border-b border-slate-800 pb-4">Improvement Suggestions</h3>
+                  <ul className="space-y-4">
+                    {result.suggestions.map((s, i) => (
+                      <li key={i} className="flex items-start gap-3 text-slate-300">
+                        <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                        <span>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              )}
+            </div>
           )}
 
           {result && result.enhancementTips && result.enhancementTips.length > 0 && (

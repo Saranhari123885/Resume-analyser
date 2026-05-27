@@ -43,13 +43,17 @@ public class ResumeAnalyzerService {
 
     private String callGroqApi(String resumeText) {
         String prompt = "You are an expert ATS (Applicant Tracking System) and senior tech recruiter. " +
-                "Analyze the following resume text and evaluate it for a tech role. " +
-                "For the 'enhancementTips' array, you must find at least two actual, weak or unquantified bullet points from the uploaded resume text, and write custom, highly personalized 'Before & After' rewrites for them to optimize their ATS visibility. " +
-                "Format the 'tip' field to clearly show 'Before: [original weak bullet]' and 'After: [optimized bullet with power verbs and simulated metrics]' on new lines. " +
+                "Analyze the following resume text and evaluate it for a tech role.\n" +
+                "For the 'enhancementTips' array, find at least two actual, weak or unquantified bullet points from the uploaded resume text, and write custom, highly personalized 'Before & After' rewrites for them to optimize their ATS visibility. " +
+                "Format the 'tip' field to clearly show 'Before: [original weak bullet]' and 'After: [optimized bullet with power verbs and simulated metrics]' on new lines.\n" +
+                "Identify weaknesses and missing elements in the resume, and generate at least 3 to 5 realistic, highly tailored, personalized improvements in the 'improvements' array based strictly on the uploaded resume text (do not provide generic advice).\n" +
+                "Categorize each improvement into one of these priority levels: 'High Priority Improvements', 'Medium Priority Improvements', or 'Optional Enhancements'.\n" +
+                "Map each improvement to a relevant category: 'Missing skills', 'Relevant keywords', 'Certifications', 'Projects', 'Technical skills', 'Achievements', 'Resume formatting improvements', or 'Experience descriptions'.\n" +
+                "For each improvement, clearly identify the specific weakness/missing element, provide a personalized actionable suggestion, explain exactly why implementing it will increase the ATS score, and assign an estimated integer score increase (e.g. 5, 8, 10).\n" +
                 "Respond ONLY with a valid JSON object matching exactly this schema: " +
                 "{\"score\": 85, \"keywords\": [\"Java\", \"React\"], \"missing\": [\"Docker\"], \"suggestions\": [\"Add quantifiable metrics\"], " +
-                "\"enhancementTips\": [{\"category\": \"Formatting\", \"tip\": \"Use a clean, single-column template to ensure ATS parsers can read your text correctly.\"}, {\"category\": \"Impact\", \"tip\": \"Before: Developed REST APIs to expose data.\\nAfter: Engineered high-throughput REST APIs to expose real-time streams, reducing latency by 35%.\"}, {\"category\": \"Metrics\", \"tip\": \"Before: Optimized database interactions.\\nAfter: Streamlined MySQL database execution plans, reducing query retrieval times by 30%.\"} ]}. " +
-                "Provide at least 3 custom, highly personalized enhancement tips in the enhancementTips array. " +
+                "\"enhancementTips\": [{\"category\": \"Formatting\", \"tip\": \"Use a clean, single-column template to ensure ATS parsers can read your text correctly.\"}, {\"category\": \"Impact\", \"tip\": \"Before: Developed REST APIs to expose data.\\nAfter: Engineered high-throughput REST APIs to expose real-time streams, reducing latency by 35%.\"}], " +
+                "\"improvements\": [{\"priority\": \"High Priority Improvements\", \"category\": \"Missing skills\", \"weakness\": \"The resume lacks modern containerization technologies which are key for senior roles.\", \"suggestion\": \"Add Docker and Kubernetes to your Technical Skills section and list a project utilizing them.\", \"explanation\": \"ATS systems filter resumes based on mandatory keyword matching; containerization is an essential modern dev keyword.\", \"scoreIncrease\": 10}]}. " +
                 "Do not include markdown blocks, backticks, or any other text outside the JSON.\n\nResume Text:\n" + resumeText;
 
         // Escape JSON safely
@@ -70,7 +74,7 @@ public class ResumeAnalyzerService {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
             String aiText = rootNode.path("choices").get(0).path("message").path("content").asText();
             
-            // Clean up potential markdown formatting from Gemini
+            // Clean up potential markdown formatting from Gemini/Llama
             aiText = aiText.trim();
             if (aiText.startsWith("```json")) {
                 aiText = aiText.substring(7);
@@ -86,7 +90,7 @@ public class ResumeAnalyzerService {
             
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResumeAnalysisResponse(0, List.of("Analysis Error"), List.of("Failed to parse response"), List.of("Please try again later."), List.of(new ResumeAnalysisResponse.EnhancementTip("General", "Please try again later.")));
+            return new ResumeAnalysisResponse(0, List.of("Analysis Error"), List.of("Failed to parse response"), List.of("Please try again later."), List.of(new ResumeAnalysisResponse.EnhancementTip("General", "Please try again later.")), List.of());
         }
     }
 }
