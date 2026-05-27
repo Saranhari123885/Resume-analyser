@@ -7,6 +7,19 @@ export default function ResumeAnalyzer() {
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState(null);
+  const [checklist, setChecklist] = useState([
+    { id: 'layout', text: 'Single-column layout (no sidebars/columns)', checked: false },
+    { id: 'tables', text: 'No tables, text boxes, or graphics', checked: false },
+    { id: 'headers', text: 'Standard headers (Skills, Experience, Education)', checked: false },
+    { id: 'verbs', text: 'Bullets start with active power verbs (Engineered, Architected)', checked: false },
+    { id: 'metrics', text: 'Quantified results (percentages, time saved, metrics)', checked: false },
+  ]);
+
+  const toggleChecklist = (id) => {
+    setChecklist(checklist.map(item => 
+      item.id === id ? { ...item, checked: !item.checked } : item
+    ));
+  };
 
   const handleUpload = async (e) => {
     e.preventDefault();
@@ -220,9 +233,50 @@ export default function ResumeAnalyzer() {
               </div>
             </motion.div>
           ) : (
-            <div className="glass-dark p-6 rounded-2xl opacity-50 flex items-center justify-center h-64 text-slate-500 text-center border border-dashed border-slate-700">
-              Upload a resume to see your analysis score and feedback.
-            </div>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="glass-dark p-6 rounded-2xl border border-slate-700/50 space-y-6"
+            >
+              <div>
+                <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  ATS Optimization Guide
+                </h3>
+                <p className="text-slate-400 text-xs leading-relaxed">Check off these guidelines before uploading your resume to maximize your score!</p>
+              </div>
+
+              <div className="space-y-3">
+                {checklist.map(item => (
+                  <label 
+                    key={item.id} 
+                    className="flex items-start gap-3 p-3 rounded-xl bg-slate-900/40 border border-slate-800/60 hover:bg-slate-850/40 hover:border-slate-700/60 cursor-pointer select-none transition-all"
+                  >
+                    <input 
+                      type="checkbox" 
+                      className="mt-1 accent-primary rounded border-slate-700 bg-slate-900 focus:ring-primary w-4 h-4 shrink-0"
+                      checked={item.checked}
+                      onChange={() => toggleChecklist(item.id)}
+                    />
+                    <span className={`text-xs leading-relaxed transition-all ${item.checked ? 'text-slate-500 line-through' : 'text-slate-300 font-medium'}`}>
+                      {item.text}
+                    </span>
+                  </label>
+                ))}
+              </div>
+
+              <div className="p-4 rounded-xl bg-gradient-to-br from-slate-900/80 to-indigo-950/20 border border-indigo-500/10">
+                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <TrendingUp className="w-4 h-4 text-indigo-400" /> Pro Writing Formula
+                </h4>
+                <p className="text-xs text-slate-300 font-semibold mb-2 leading-relaxed">
+                  Action Verb + Task + Quantifiable Result
+                </p>
+                <div className="p-3 rounded bg-slate-950/60 border border-slate-900 text-[10px] text-slate-400 leading-relaxed italic">
+                  "Spearheaded React migration for 5 legacy applications, reducing client-side load time by 38% and boosting user engagement metrics."
+                </div>
+              </div>
+            </motion.div>
           )}
         </div>
       </div>
