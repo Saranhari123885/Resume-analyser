@@ -1,0 +1,16 @@
+# Robots.txt for Resume Analyser - AI Resume Analysis Platform
+# Allows search engine crawling of all public routes while shielding authenticated user pages.
+
+User-agent: *
+Allow: /
+Allow: /features
+Allow: /pricing
+Allow: /login
+Allow: /register
+
+# Disallow authenticated dashboard pages for crawler indexation to protect user privacy
+Disallow: /dashboard/
+Disallow: /dashboard*
+
+# Reference the sitemap location
+Sitemap: https://resume-analyser-ai.vercel.app/sitemap.xml
