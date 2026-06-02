@@ -40,8 +40,18 @@ public class RoadmapService {
                 "\"guidance\": \"Detailed, actionable career guidance and project-focused suggestions for mastering this domain.\" } " +
                 "Return ONLY the raw JSON object, without any markdown code fences like ```json or ```. Return just the JSON structure.";
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to serialize request prompt to JSON", e);
+        }
 
         try {
             String response = webClient.post()

@@ -36,8 +36,18 @@ public class InterviewPrepService {
                 "\"type\" (string e.g., Technical, Behavioral, Coding), \"q\" (the question string), and \"a\" (the detailed answer string). " +
                 "Do not include markdown blocks like ```json outside the array. Return just the raw JSON array.";
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to serialize request prompt to JSON", e);
+        }
 
         String response = webClient.post()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + groqApiKey)
@@ -56,8 +66,18 @@ public class InterviewPrepService {
                 "If the question implies code or is asking for an implementation, provide well-formatted code snippets using markdown (e.g. ```java ... ```). " +
                 "The user's question: " + request.getQuestion();
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to serialize request prompt to JSON", e);
+        }
 
         String response = webClient.post()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + groqApiKey)
@@ -105,8 +125,18 @@ public class InterviewPrepService {
                 "4. Critical pitfalls or red flags to avoid.\n\n" +
                 "User's question/doubt: " + question;
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to serialize request prompt to JSON", e);
+        }
 
         try {
             String response = webClient.post()

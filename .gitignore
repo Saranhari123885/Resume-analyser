@@ -1,0 +1,10 @@
+# Local Environment Variables
+.env
+.env*.local
+
+# Node/Vite build/dependency dirs
+frontend/node_modules/
+frontend/dist/
+
+# Java build dirs
+backend/target/

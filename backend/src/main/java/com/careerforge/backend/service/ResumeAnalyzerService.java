@@ -56,9 +56,19 @@ public class ResumeAnalyzerService {
                 "\"improvements\": [{\"priority\": \"High Priority Improvements\", \"category\": \"Missing skills\", \"weakness\": \"The resume lacks modern containerization technologies which are key for senior roles.\", \"suggestion\": \"Add Docker and Kubernetes to your Technical Skills section and list a project utilizing them.\", \"explanation\": \"ATS systems filter resumes based on mandatory keyword matching; containerization is an essential modern dev keyword.\", \"scoreIncrease\": 10}]}. " +
                 "Do not include markdown blocks, backticks, or any other text outside the JSON.\n\nResume Text:\n" + resumeText;
 
-        // Escape JSON safely
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"temperature\": 0.0, \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "temperature", 0.0,
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to serialize request prompt to JSON", e);
+        }
 
         return webClient.post()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + groqApiKey)

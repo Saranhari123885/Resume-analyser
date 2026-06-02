@@ -34,7 +34,7 @@ public class ProjectGeneratorService {
         String fileText = "";
         if (file != null && !file.isEmpty()) {
             try {
-                fileText = extractTextFromPdf(file);
+                fileText = extractTextFromFile(file);
             } catch (IOException e) {
                 e.printStackTrace();
                 fileText = "Error reading uploaded file: " + e.getMessage();
@@ -62,8 +62,18 @@ public class ProjectGeneratorService {
                 "Generate exactly 8-10 customized, high-quality interview Q&A pairs relevant to this specific tech stack and project. " +
                 "Do not include markdown code fences (```json or ```) or any other conversational text in your response. Return just the JSON structure.";
 
-        String escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "");
-        String requestBody = "{\"model\": \"llama-3.3-70b-versatile\", \"messages\": [{\"role\": \"user\", \"content\": \"" + escapedPrompt + "\"}]}";
+        String requestBody;
+        try {
+            java.util.Map<String, Object> message = java.util.Map.of("role", "user", "content", prompt);
+            java.util.Map<String, Object> requestMap = java.util.Map.of(
+                "model", "llama-3.3-70b-versatile",
+                "messages", java.util.List.of(message)
+            );
+            requestBody = objectMapper.writeValueAsString(requestMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createFallbackProject(title, domain, projectType, techStack, "JSON serialization error: " + e.getMessage());
+        }
 
         try {
             String response = webClient.post()
@@ -81,10 +91,15 @@ public class ProjectGeneratorService {
         }
     }
 
-    private String extractTextFromPdf(MultipartFile file) throws IOException {
-        try (PDDocument document = PDDocument.load(file.getInputStream())) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            return stripper.getText(document);
+    private String extractTextFromFile(MultipartFile file) throws IOException {
+        String filename = file.getOriginalFilename();
+        if (filename != null && filename.toLowerCase().endsWith(".txt")) {
+            return new String(file.getBytes(), java.nio.charset.StandardCharsets.UTF_8);
+        } else {
+            try (PDDocument document = PDDocument.load(file.getInputStream())) {
+                PDFTextStripper stripper = new PDFTextStripper();
+                return stripper.getText(document);
+            }
         }
     }
 
